@@ -3,425 +3,448 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ya Öl Ya Öldür - PC</title>
+<title>Windows 12 Web OS</title>
 <style>
-  * { box-sizing: border-box; }
-  html, body { margin: 0; overflow: hidden; background: #000; font-family: Arial, sans-serif; }
-  canvas { display: block; }
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+  body, html { width: 100%; height: 100%; overflow: hidden; background: #000; color: #fff; }
 
-  #errorBox {
-    position: fixed; top: 0; left: 0; right: 0; background: #900; color: #fff;
-    padding: 10px; font-size: 13px; z-index: 999; display: none; word-break: break-all;
+  /* GÜÇ EKRANI / BOOT / SHUTDOWN */
+  #powerScreen {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: #000; z-index: 99999; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; opacity: 1; transition: opacity 0.8s ease;
+  }
+  .win-logo-boot {
+    width: 80px; height: 80px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 40px;
+  }
+  .win-logo-boot div { background: #0078d4; border-radius: 4px; }
+  .spinner {
+    width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.1);
+    border-top: 4px solid #0078d4; border-radius: 50%; animation: spin 1s linear infinite;
+  }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  #powerBtnPhys {
+    display: none; padding: 15px 30px; background: #0078d4; color: #fff; border: none;
+    border-radius: 30px; font-size: 18px; cursor: pointer; font-weight: bold; box-shadow: 0 0 20px rgba(0,120,212,0.5);
   }
 
-  #hud {
-    position: fixed; top: 10px; left: 10px; color: #fff;
-    font-size: 18px; text-shadow: 2px 2px 4px #000; z-index: 10; pointer-events: none;
+  /* KİLİT EKRANI */
+  #lockScreen {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920') center/cover;
+    z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: 60px 0; backdrop-filter: blur(0px); transition: transform 0.6s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.5s;
+    cursor: pointer;
+  }
+  .lock-time { font-size: 80px; font-weight: 300; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+  .lock-date { font-size: 22px; font-weight: 400; margin-top: -10px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+  .lock-hint { font-size: 14px; opacity: 0.8; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+  /* DESKTOP */
+  #desktop {
+    width: 100vw; height: 100vh;
+    background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920') center/cover;
+    position: relative; overflow: hidden; display: flex; flex-direction: column;
   }
 
-  #crosshair {
-    position: fixed; top: 50%; left: 50%; width: 20px; height: 20px;
-    margin: -10px 0 0 -10px; border: 2px solid #fff; border-radius: 50%;
-    z-index: 10; pointer-events: none; opacity: 0.7;
+  /* VIRUS GLITCH EFFECT */
+  body.virus-active #desktop {
+    animation: glitch 0.2s infinite;
+    filter: hue-rotate(90deg) contrast(150%);
+  }
+  @keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-3px, 3px); }
+    40% { transform: translate(-3px, -3px); }
+    60% { transform: translate(3px, 3px); }
+    80% { transform: translate(3px, -3px); }
+    100% { transform: translate(0); }
   }
 
-  #startScreen {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.9); color: #fff;
+  /* DESKTOP ICONS */
+  .desktop-icons {
+    padding: 20px; display: flex; flex-direction: column; flex-wrap: wrap;
+    gap: 20px; height: calc(100vh - 60px); align-content: flex-start;
+  }
+  .icon {
+    width: 80px; display: flex; flex-direction: column; align-items: center;
+    gap: 6px; cursor: pointer; padding: 8px; border-radius: 8px; transition: background 0.2s;
+  }
+  .icon:hover { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(5px); }
+  .icon img, .icon .icon-svg { width: 48px; height: 48px; object-fit: contain; }
+  .icon span { font-size: 12px; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.8); word-break: break-word; }
+
+  /* TASKBAR */
+  #taskbar {
+    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    height: 50px; background: rgba(20, 20, 30, 0.65); backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 25px;
+    display: flex; align-items: center; padding: 0 15px; gap: 10px; z-index: 8000;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  .tb-btn {
+    width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center;
+    justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 20px;
+    position: relative;
+  }
+  .tb-btn:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
+  .tb-btn.active::after {
+    content: ''; position: absolute; bottom: 2px; width: 12px; height: 3px;
+    background: #0078d4; border-radius: 2px;
+  }
+
+  /* START MENU */
+  #startMenu {
+    position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%) scale(0.95);
+    width: 520px; height: 550px; background: rgba(25, 28, 36, 0.85); backdrop-filter: blur(25px);
+    border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; z-index: 8500;
+    display: none; opacity: 0; transition: all 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+    flex-direction: column; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+  }
+  #startMenu.open { display: flex; opacity: 1; transform: translateX(-50%) scale(1); }
+  .start-search {
+    width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 25px; color: #fff; font-size: 14px; outline: none; margin-bottom: 20px;
+  }
+  .start-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; flex: 1; }
+  .start-item {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    z-index: 100; text-align: center; padding: 20px;
+    gap: 8px; padding: 12px; border-radius: 12px; cursor: pointer; transition: background 0.2s;
   }
-  #startScreen h1 { color: #e33; font-size: 48px; margin: 0 0 10px; }
-  #startScreen p { max-width: 500px; line-height: 1.8; color: #ccc; font-size: 16px; }
-  #startBtn {
-    margin-top: 25px; padding: 15px 50px; font-size: 20px; background: #e33;
-    color: #fff; border: none; border-radius: 8px; cursor: pointer;
+  .start-item:hover { background: rgba(255,255,255,0.1); }
+  .start-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; margin-top: 10px;
   }
-  #startBtn:hover { background: #c22; }
+  .user-profile { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; }
+  .power-btn {
+    background: rgba(255,255,255,0.1); border: none; color: #fff; width: 36px; height: 36px;
+    border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+  }
+  .power-btn:hover { background: #e74c3c; }
 
-  #gameOver {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.92); color: #fff;
-    display: none; flex-direction: column; align-items: center; justify-content: center;
-    z-index: 100;
+  /* WINDOWS */
+  .window {
+    position: absolute; width: 700px; height: 500px; background: rgba(20, 24, 33, 0.92);
+    backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.5); display: flex; flex-direction: column;
+    overflow: hidden; z-index: 1000; min-width: 320px; min-height: 200px;
   }
-  #gameOver h1 { color: #e33; font-size: 56px; }
-  #restartBtn {
-    padding: 15px 50px; font-size: 20px; background: #e33; color: #fff;
-    border: none; border-radius: 8px; margin-top: 20px; cursor: pointer;
+  .win-header {
+    height: 38px; background: rgba(255,255,255,0.03); display: flex; align-items: center;
+    justify-content: space-between; padding: 0 12px; cursor: move; border-bottom: 1px solid rgba(255,255,255,0.05);
   }
-  #restartBtn:hover { background: #c22; }
+  .win-title { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .win-controls { display: flex; gap: 8px; }
+  .win-btn { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; border: none; }
+  .win-close { background: #ff5f56; }
+  .win-min { background: #ffbd2e; }
+  .win-max { background: #27c93f; }
+  .win-body { flex: 1; overflow: auto; position: relative; }
+
+  /* NOTIFICATION & DEFENDER ALERTS */
+  .alert-modal {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7);
+    z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);
+  }
+  .alert-box {
+    width: 450px; background: #1a1d24; border: 2px solid #e74c3c; border-radius: 12px;
+    padding: 20px; color: #fff; box-shadow: 0 10px 30px rgba(231,76,60,0.3); text-align: center;
+  }
+  .alert-box h2 { color: #e74c3c; font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .alert-box p { font-size: 14px; color: #ccc; margin-bottom: 20px; line-height: 1.4; }
+  .alert-btns { display: flex; gap: 10px; justify-content: center; }
+  .btn-danger { background: #e74c3c; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+  .btn-safe { background: #2a3b55; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; }
+
+  iframe { width: 100%; height: 100%; border: none; }
 </style>
 </head>
 <body>
 
-<div id="errorBox"></div>
-<div id="hud">❤️ <span id="hp">100</span> | 💀 <span id="score">0</span></div>
-<div id="crosshair"></div>
-
-<div id="startScreen">
-  <h1>YA ÖL YA ÖLDÜR</h1>
-  <p>
-    <b>WASD</b> = hareket &nbsp;|&nbsp; <b>Mouse</b> = bakın<br>
-    <b>Sol tık</b> = ateş &nbsp;|&nbsp; <b>F</b> = kanca (binaya tutun, uç)<br>
-    <b>ESC</b> = mouse'u serbest bırak
-  </p>
-  <button id="startBtn">OYUNA BAŞLA</button>
+<!-- GÜÇ / BOOT EKRANI -->
+<div id="powerScreen">
+  <div class="win-logo-boot" id="bootLogo">
+    <div></div><div></div><div></div><div></div>
+  </div>
+  <div class="spinner" id="bootSpinner"></div>
+  <p id="bootText" style="margin-top:20px; color:#aaa; font-size:14px;">Windows 12 Başlatılıyor...</p>
+  <button id="powerBtnPhys" onclick="turnOnSystem()">🖥️ Sistemi Aç</button>
 </div>
 
-<div id="gameOver">
-  <h1>ÖLDÜN</h1>
-  <p>Skor: <span id="finalScore">0</span></p>
-  <button id="restartBtn">TEKRAR DENE</button>
+<!-- KİLİT EKRANI -->
+<div id="lockScreen" onclick="unlockSystem()">
+  <div>
+    <div class="lock-time" id="lockTime">12:00</div>
+    <div class="lock-date" id="lockDate">27 Ekim Salı</div>
+  </div>
+  <div class="lock-hint">Masaüstüne geçmek için tıklayın veya bir tuşa basın</div>
 </div>
 
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
-  }
+<!-- MASAÜSTÜ -->
+<div id="desktop">
+  <div class="desktop-icons">
+    <div class="icon" onclick="openApp('chrome')">
+      <span style="font-size:36px;">🌐</span>
+      <span>Google Chrome</span>
+    </div>
+    <div class="icon" onclick="openApp('avci')">
+      <span style="font-size:36px;">🏹</span>
+      <span>Avcı AI</span>
+    </div>
+    <div class="icon" onclick="openApp('store')">
+      <span style="font-size:36px;">🛍️</span>
+      <span>Mağaza</span>
+    </div>
+    <div class="icon" onclick="openApp('files')">
+      <span style="font-size:36px;">📁</span>
+      <span>Dosyalar</span>
+    </div>
+    <div class="icon" onclick="openApp('cmd')">
+      <span style="font-size:36px;">💻</span>
+      <span>Terminal</span>
+    </div>
+    <div class="icon" onclick="openApp('camera')">
+      <span style="font-size:36px;">📷</span>
+      <span>Kamera</span>
+    </div>
+    <div class="icon" onclick="openApp('defender')">
+      <span style="font-size:36px;">🛡️</span>
+      <span>Defender</span>
+    </div>
+  </div>
+
+  <!-- GÖREV ÇUBUĞU -->
+  <div id="taskbar">
+    <div class="tb-btn" onclick="toggleStartMenu()">🪟</div>
+    <div class="tb-btn" onclick="openApp('chrome')">🌐</div>
+    <div class="tb-btn" onclick="openApp('avci')">🏹</div>
+    <div class="tb-btn" onclick="openApp('files')">📁</div>
+    <div class="tb-btn" onclick="openApp('cmd')">💻</div>
+    <div class="tb-btn" onclick="openApp('defender')">🛡️</div>
+    <div style="margin-left:auto; font-size:12px; text-align:right; cursor:pointer;" id="tbClock">12:00</div>
+  </div>
+
+  <!-- BAŞLAT MENÜSÜ -->
+  <div id="startMenu">
+    <input class="start-search" placeholder="Uygulama veya dosya ara..." />
+    <div class="start-grid">
+      <div class="start-item" onclick="openApp('chrome'); toggleStartMenu();"><span style="font-size:28px;">🌐</span><span style="font-size:12px;">Chrome</span></div>
+      <div class="start-item" onclick="openApp('avci'); toggleStartMenu();"><span style="font-size:28px;">🏹</span><span style="font-size:12px;">Avcı AI</span></div>
+      <div class="start-item" onclick="openApp('store'); toggleStartMenu();"><span style="font-size:28px;">🛍️</span><span style="font-size:12px;">Mağaza</span></div>
+      <div class="start-item" onclick="openApp('files'); toggleStartMenu();"><span style="font-size:28px;">📁</span><span style="font-size:12px;">Dosyalar</span></div>
+      <div class="start-item" onclick="openApp('cmd'); toggleStartMenu();"><span style="font-size:28px;">💻</span><span style="font-size:12px;">Terminal</span></div>
+      <div class="start-item" onclick="openApp('camera'); toggleStartMenu();"><span style="font-size:28px;">📷</span><span style="font-size:12px;">Kamera</span></div>
+      <div class="start-item" onclick="openApp('defender'); toggleStartMenu();"><span style="font-size:28px;">🛡️</span><span style="font-size:12px;">Defender</span></div>
+    </div>
+    <div class="start-footer">
+      <div class="user-profile">👤 Kullanıcı</div>
+      <button class="power-btn" onclick="shutdownSystem()" title="Kapat">🔴</button>
+    </div>
+  </div>
+</div>
+
+<!-- SMARTSCREEN VIRUS UYARI MODALI -->
+<div class="alert-modal" id="virusAlert">
+  <div class="alert-box">
+    <h2>🛡️ Windows SmartScreen Uyarısı</h2>
+    <p id="virusAlertText">Bilinmeyen ve tehlikeli bir dosya algılandı: <b>Free_Games_Installer.exe</b><br>Bu dosya sisteminize zarar verebilir!</p>
+    <div class="alert-btns">
+      <button class="btn-danger" onclick="executeVirus()">Yine de Çalıştır (Riskli)</button>
+      <button class="btn-safe" onclick="blockVirus()">Karantinaya Al (Tavsiye Edilen)</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// --- SİSTEM ZAMAN & AÇILIŞ / KAPANIŞ MANTIĞI ---
+function updateClock() {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+  const dateStr = now.toLocaleDateString('tr-TR', { weekday: 'long', month: 'long', day: 'numeric' });
+  document.getElementById('tbClock').innerHTML = timeStr;
+  document.getElementById('lockTime').textContent = timeStr;
+  document.getElementById('lockDate').textContent = dateStr;
 }
-</script>
+setInterval(updateClock, 1000);
+updateClock();
 
-<script type="module">
-window.addEventListener('error', e => {
-  const box = document.getElementById('errorBox');
-  box.style.display = 'block';
-  box.textContent = 'HATA: ' + (e.message || e.error);
-});
+function bootSystem() {
+  const pScreen = document.getElementById('powerScreen');
+  const spinner = document.getElementById('bootSpinner');
+  const text = document.getElementById('bootText');
+  const logo = document.getElementById('bootLogo');
+  const pBtn = document.getElementById('powerBtnPhys');
 
-import * as THREE from 'three';
+  pScreen.style.display = 'flex';
+  pScreen.style.opacity = '1';
+  spinner.style.display = 'block';
+  logo.style.display = 'grid';
+  text.textContent = "Windows 12 Başlatılıyor...";
+  pBtn.style.display = 'none';
 
-// ---------- SAHNE ----------
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x1a1a2e);
-scene.fog = new THREE.Fog(0x1a1a2e, 25, 90);
-
-const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 300);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
-renderer.shadowMap.enabled = true;
-document.body.appendChild(renderer.domElement);
-
-addEventListener('resize', () => {
-  camera.aspect = innerWidth/innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-});
-
-// ---------- IŞIK ----------
-scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-const sun = new THREE.DirectionalLight(0x99aaff, 0.9);
-sun.position.set(15, 25, 10);
-sun.castShadow = true;
-sun.shadow.mapSize.set(1024, 1024);
-sun.shadow.camera.left = -50;
-sun.shadow.camera.right = 50;
-sun.shadow.camera.top = 50;
-sun.shadow.camera.bottom = -50;
-scene.add(sun);
-
-// ---------- ZEMİN ----------
-const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(120, 120),
-  new THREE.MeshStandardMaterial({ color: 0x223322 })
-);
-ground.rotation.x = -Math.PI/2;
-ground.receiveShadow = true;
-scene.add(ground);
-
-// ---------- BİNALAR ----------
-const buildings = [];
-const buildingMat = new THREE.MeshStandardMaterial({ color: 0x444455 });
-for (let i = 0; i < 14; i++) {
-  const w = 3 + Math.random()*4;
-  const h = 5 + Math.random()*12;
-  const d = 3 + Math.random()*4;
-  const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), buildingMat);
-  const angle = Math.random() * Math.PI * 2;
-  const r = 12 + Math.random() * 30;
-  b.position.set(Math.cos(angle)*r, h/2, Math.sin(angle)*r);
-  b.castShadow = true;
-  b.receiveShadow = true;
-  b.userData.size = new THREE.Vector3(w, h, d);
-  scene.add(b);
-  buildings.push(b);
-}
-
-// ---------- OYUNCU ----------
-const player = {
-  pos: new THREE.Vector3(0, 1.7, 0),
-  yaw: 0,
-  pitch: 0,
-  hp: 100,
-  velY: 0,
-  speed: 8
-};
-
-// ---------- SİLAH (kamera önünde) ----------
-const gun = new THREE.Mesh(
-  new THREE.BoxGeometry(0.15, 0.15, 0.8),
-  new THREE.MeshStandardMaterial({ color: 0x222222 })
-);
-gun.position.set(0.3, -0.25, -0.6);
-camera.add(gun);
-scene.add(camera);
-
-// ---------- ZOMBİLER ----------
-const zombies = [];
-const zombieBodyMat = new THREE.MeshStandardMaterial({ color: 0x2e8b2e });
-const zombieHeadMat = new THREE.MeshStandardMaterial({ color: 0x3fa03f });
-
-function spawnZombie() {
-  const g = new THREE.Group();
-  const b = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.2, 0.5), zombieBodyMat);
-  b.position.y = 0.9; b.castShadow = true; g.add(b);
-  const h = new THREE.Mesh(new THREE.SphereGeometry(0.33, 10, 10), zombieHeadMat);
-  h.position.y = 1.75; h.castShadow = true; g.add(h);
-
-  const angle = Math.random() * Math.PI * 2;
-  const r = 28 + Math.random() * 15;
-  g.position.set(Math.cos(angle)*r, 0, Math.sin(angle)*r);
-  scene.add(g);
-  zombies.push({ mesh: g, hp: 30, speed: 1.5 + Math.random()*1.8 });
+  setTimeout(() => {
+    pScreen.style.opacity = '0';
+    setTimeout(() => { pScreen.style.display = 'none'; }, 800);
+  }, 2500);
 }
 
-// ---------- KANCA ----------
-let hookState = 'idle';
-let hookPos = new THREE.Vector3();
-let hookTarget = new THREE.Vector3();
-const hookLine = new THREE.Line(
-  new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]),
-  new THREE.LineBasicMaterial({ color: 0xffdd00 })
-);
-hookLine.visible = false;
-scene.add(hookLine);
-
-const raycaster = new THREE.Raycaster();
-
-function throwHook() {
-  if (hookState !== 'idle') return;
-  const dir = new THREE.Vector3();
-  camera.getWorldDirection(dir);
-  raycaster.set(player.pos, dir);
-  raycaster.far = 50;
-  const hits = raycaster.intersectObjects(buildings);
-  if (hits.length > 0) {
-    hookTarget.copy(hits[0].point);
-    hookState = 'attached';
-    hookPos.copy(hits[0].point);
-    hookLine.visible = true;
-  }
+function unlockSystem() {
+  const lock = document.getElementById('lockScreen');
+  lock.style.transform = 'translateY(-100%)';
+  lock.style.opacity = '0';
 }
 
-function releaseHook() {
-  hookState = 'idle';
-  hookLine.visible = false;
+function shutdownSystem() {
+  toggleStartMenu();
+  const pScreen = document.getElementById('powerScreen');
+  const spinner = document.getElementById('bootSpinner');
+  const text = document.getElementById('bootText');
+  const logo = document.getElementById('bootLogo');
+  const pBtn = document.getElementById('powerBtnPhys');
+
+  pScreen.style.display = 'flex';
+  pScreen.style.opacity = '1';
+  spinner.style.display = 'block';
+  text.textContent = "Kapatılıyor...";
+
+  setTimeout(() => {
+    spinner.style.display = 'none';
+    logo.style.display = 'none';
+    text.textContent = "Sistem Güvenle Kapatıldı.";
+    pBtn.style.display = 'block';
+  }, 2000);
 }
 
-// ---------- ATEŞ ----------
-const bullets = [];
-let score = 0;
-
-function shoot() {
-  const dir = new THREE.Vector3();
-  camera.getWorldDirection(dir);
-
-  const b = new THREE.Mesh(
-    new THREE.SphereGeometry(0.08, 4, 4),
-    new THREE.MeshBasicMaterial({ color: 0xffff00 })
-  );
-  b.position.copy(player.pos);
-  scene.add(b);
-  bullets.push({ mesh: b, dir: dir.clone(), life: 1.2, speed: 80 });
-
-  raycaster.set(player.pos, dir);
-  raycaster.far = 80;
-  const hits = raycaster.intersectObjects(zombies.map(z => z.mesh), true);
-  if (hits.length > 0) {
-    let hitObj = hits[0].object;
-    while (hitObj.parent && !zombies.find(z => z.mesh === hitObj)) {
-      hitObj = hitObj.parent;
-    }
-    const z = zombies.find(zz => zz.mesh === hitObj);
-    if (z) {
-      z.hp -= 15;
-      if (z.hp <= 0) {
-        scene.remove(z.mesh);
-        zombies.splice(zombies.indexOf(z), 1);
-        score += 10;
-        document.getElementById('score').textContent = score;
-      }
-    }
-  }
+function turnOnSystem() {
+  const lock = document.getElementById('lockScreen');
+  lock.style.transform = 'translateY(0)';
+  lock.style.opacity = '1';
+  bootSystem();
 }
 
-// ---------- KONTROL ----------
-const keys = {};
-addEventListener('keydown', e => {
-  keys[e.code] = true;
-  if (e.code === 'KeyF') {
-    if (hookState === 'idle') throwHook();
-    else releaseHook();
-  }
-});
-addEventListener('keyup', e => keys[e.code] = false);
+window.onload = bootSystem;
 
-let mouseDown = false;
-document.addEventListener('mousedown', e => { if (e.button === 0) mouseDown = true; });
-document.addEventListener('mouseup', e => { if (e.button === 0) mouseDown = false; });
+// --- BAŞLAT MENÜSÜ ---
+function toggleStartMenu() {
+  const menu = document.getElementById('startMenu');
+  menu.classList.toggle('open');
+}
 
-let pointerLocked = false;
-document.addEventListener('pointerlockchange', () => {
-  pointerLocked = document.pointerLockElement === renderer.domElement;
-});
-document.addEventListener('mousemove', e => {
-  if (!pointerLocked) return;
-  player.yaw -= e.movementX * 0.002;
-  player.pitch -= e.movementY * 0.002;
-  player.pitch = Math.max(-Math.PI/2 + 0.1, Math.min(Math.PI/2 - 0.1, player.pitch));
-});
+// --- PENCERE SİSTEMİ ---
+let zIndexCounter = 1000;
+function openApp(appType) {
+  const win = document.createElement('div');
+  win.className = 'window';
+  win.style.top = (80 + Math.random() * 50) + 'px';
+  win.style.left = (150 + Math.random() * 100) + 'px';
+  win.style.zIndex = ++zIndexCounter;
 
-// Tıklayınca pointer lock tekrar al (ESC sonrası)
-renderer.domElement.addEventListener('click', () => {
-  if (running && !pointerLocked) renderer.domElement.requestPointerLock();
-});
+  let title = 'Uygulama';
+  let content = '';
 
-// ---------- DÖNGÜ ----------
-let running = false;
-let spawnTimer = 0;
-let shootCooldown = 0;
-const clock = new THREE.Clock();
-const gravity = -30;
-
-function update(dt) {
-  // Hareket
-  const forward = new THREE.Vector3(-Math.sin(player.yaw), 0, -Math.cos(player.yaw));
-  const right = new THREE.Vector3(Math.cos(player.yaw), 0, -Math.sin(player.yaw));
-  const move = new THREE.Vector3();
-  if (keys['KeyW']) move.add(forward);
-  if (keys['KeyS']) move.sub(forward);
-  if (keys['KeyD']) move.add(right);
-  if (keys['KeyA']) move.sub(right);
-  if (move.length() > 0) move.normalize();
-
-  const newPos = player.pos.clone().addScaledVector(move, player.speed * dt);
-
-  // Çarpışma
-  let blocked = false;
-  for (const b of buildings) {
-    const s = b.userData.size;
-    if (Math.abs(newPos.x - b.position.x) < s.x/2 + 0.4 &&
-        Math.abs(newPos.z - b.position.z) < s.z/2 + 0.4 &&
-        player.pos.y - 1.7 < s.y) {
-      blocked = true; break;
-    }
-  }
-  if (!blocked) { player.pos.x = newPos.x; player.pos.z = newPos.z; }
-
-  // Kanca
-  if (hookState === 'attached') {
-    const toHook = new THREE.Vector3().subVectors(hookTarget, player.pos);
-    const dist = toHook.length();
-    if (dist > 2) {
-      toHook.normalize();
-      player.pos.addScaledVector(toHook, 20 * dt);
-      player.velY = Math.max(player.velY, toHook.y * 12);
-    } else {
-      releaseHook();
-    }
+  if (appType === 'chrome') {
+    title = 'Google Chrome';
+    content = `<div style="padding:10px; background:#111; display:flex; gap:8px;">
+      <input id="urlBar" style="flex:1; padding:8px 15px; border-radius:20px; border:none; background:#222; color:#fff;" value="https://google.com" />
+      <button onclick="document.getElementById('chromeFrame').src=document.getElementById('urlBar').value" style="padding:8px 15px; border-radius:20px; background:#0078d4; color:#fff; border:none;">Git</button>
+      <button onclick="triggerVirusPrompt()" style="padding:8px 12px; border-radius:20px; background:#e74c3c; color:#fff; border:none; font-size:11px;">⚠️ Hile İndir (.exe)</button>
+    </div>
+    <iframe id="chromeFrame" src="https://www.bing.com"></iframe>`;
+  } else if (appType === 'avci') {
+    title = '🏹 Avcı AI';
+    content = `<iframe srcdoc="${getAvciCode()}"></iframe>`;
+  } else if (appType === 'cmd') {
+    title = 'Terminal (CMD)';
+    content = `<div style="background:#000; color:#0f0; font-family:monospace; padding:15px; height:100%; overflow:auto;" onclick="this.querySelector('input').focus()">
+      <p>Windows 12 Terminal [Version 10.0.22621]</p>
+      <p>(c) Microsoft Corporation. Tüm hakları saklıdır.</p><br>
+      <div id="cmdOut"></div>
+      <div style="display:flex;"><span>C:\\Users\\Kullanıcı></span><input id="cmdIn" style="background:transparent; border:none; color:#0f0; font-family:monospace; flex:1; outline:none; margin-left:5px;" onkeydown="handleCmd(event, this)"></div>
+    </div>`;
+  } else if (appType === 'defender') {
+    title = '🛡️ Windows Defender';
+    content = `<div style="padding:30px; text-align:center;">
+      <h2>Windows Defender Güvenlik Merkezi</h2><br>
+      <div id="defStatus" style="font-size:18px; color:#2ecc71;">✅ Sistem Korumada</div><br>
+      <button onclick="runScan()" style="padding:12px 25px; background:#0078d4; color:#fff; border:none; border-radius:8px; cursor:pointer;">Tam Tarama Başlat</button>
+    </div>`;
+  } else {
+    title = appType.toUpperCase();
+    content = `<div style="padding:20px;">${title} Uygulaması Hazır.</div>`;
   }
 
-  // Yerçekimi
-  player.velY += gravity * dt;
-  player.pos.y += player.velY * dt;
-  if (player.pos.y < 1.7) { player.pos.y = 1.7; player.velY = 0; }
+  win.innerHTML = `
+    <div class="win-header" onmousedown="dragWin(event, this.parentElement)">
+      <div class="win-title">${title}</div>
+      <div class="win-controls">
+        <button class="win-btn win-close" onclick="this.parentElement.parentElement.parentElement.remove()"></button>
+      </div>
+    </div>
+    <div class="win-body">${content}</div>
+  `;
 
-  // Kamera
-  camera.position.copy(player.pos);
-  camera.rotation.order = 'YXZ';
-  camera.rotation.y = player.yaw;
-  camera.rotation.x = player.pitch;
+  document.getElementById('desktop').appendChild(win);
+}
 
-  // Kanca çizgisi
-  if (hookState === 'attached') {
-    hookLine.geometry.setFromPoints([player.pos.clone(), hookPos]);
+// --- SURUKLE BIRAK ---
+function dragWin(e, win) {
+  win.style.zIndex = ++zIndexCounter;
+  let posX = e.clientX - win.offsetLeft;
+  let posY = e.clientY - win.offsetTop;
+
+  function move(e) {
+    win.style.left = (e.clientX - posX) + 'px';
+    win.style.top = (e.clientY - posY) + 'px';
   }
-
-  // Ateş
-  shootCooldown -= dt;
-  if (mouseDown && shootCooldown <= 0 && pointerLocked) {
-    shoot();
-    shootCooldown = 0.15;
+  function stop() {
+    window.removeEventListener('mousemove', move);
+    window.removeEventListener('mouseup', stop);
   }
+  window.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', stop);
+}
 
-  // Mermiler
-  for (let i = bullets.length - 1; i >= 0; i--) {
-    const b = bullets[i];
-    b.mesh.position.addScaledVector(b.dir, b.speed * dt);
-    b.life -= dt;
-    if (b.life <= 0) { scene.remove(b.mesh); bullets.splice(i, 1); }
-  }
+// --- VIRUS SIMULATION ---
+function triggerVirusPrompt() {
+  document.getElementById('virusAlert').style.display = 'flex';
+}
+function blockVirus() {
+  document.getElementById('virusAlert').style.display = 'none';
+  alert("✅ Tehdit engellendi ve güvenle temizlendi.");
+}
+function executeVirus() {
+  document.getElementById('virusAlert').style.display = 'none';
+  document.body.classList.add('virus-active');
+  alert("⚠️ UYARI: Virüs sisteme bulaştı! Ekran bozuldu ve Defender uyarı veriyor!");
+}
+function runScan() {
+  const def = document.getElementById('defStatus');
+  def.innerHTML = "🔍 Taranıyor...";
+  setTimeout(() => {
+    document.body.classList.remove('virus-active');
+    def.innerHTML = "✅ Sistem Temizlendi ve Koruma Altında!";
+  }, 2000);
+}
 
-  // Zombiler
-  for (const z of zombies) {
-    const dir = new THREE.Vector3().subVectors(player.pos, z.mesh.position);
-    dir.y = 0;
-    const dist = dir.length();
-    if (dist > 0.1) {
-      dir.normalize();
-      z.mesh.position.addScaledVector(dir, z.speed * dt);
-      z.mesh.lookAt(player.pos.x, 0.9, player.pos.z);
-    }
-    if (dist < 1.5) {
-      player.hp -= 20 * dt;
-      document.getElementById('hp').textContent = Math.max(0, Math.floor(player.hp));
-      if (player.hp <= 0) endGame();
-    }
-  }
-
-  // Spawn
-  spawnTimer -= dt;
-  if (spawnTimer <= 0 && zombies.length < 15) {
-    spawnZombie();
-    spawnTimer = 1.5;
+// --- TERMINAL KOMUTLARI ---
+function handleCmd(e, input) {
+  if (e.key === 'Enter') {
+    const cmd = input.value.trim();
+    const out = document.getElementById('cmdOut');
+    out.innerHTML += `<div>C:\\Users\\Kullanıcı> ${cmd}</div>`;
+    if (cmd === 'help') out.innerHTML += `<div>Komutlar: help, cls, ver, virus</div>`;
+    else if (cmd === 'cls') out.innerHTML = '';
+    else if (cmd === 'virus') triggerVirusPrompt();
+    else if (cmd) out.innerHTML += `<div>'${cmd}' komutu tanınmıyor.</div>`;
+    input.value = '';
   }
 }
 
-function animate() {
-  requestAnimationFrame(animate);
-  const dt = Math.min(clock.getDelta(), 0.05);
-  if (running) update(dt);
-  renderer.render(scene, camera);
+function getAvciCode() {
+  return `<body style="background:#0d1b2a; color:#fff; font-family:sans-serif; padding:10px;"><h3>🏹 Avcı AI</h3><p>Windows 12 Entegre Asistanı Hazır!</p></body>`;
 }
-
-function startGame() {
-  document.getElementById('startScreen').style.display = 'none';
-  document.getElementById('gameOver').style.display = 'none';
-  player.hp = 100;
-  player.pos.set(0, 1.7, 0);
-  player.yaw = 0; player.pitch = 0; player.velY = 0;
-  score = 0;
-  document.getElementById('hp').textContent = 100;
-  document.getElementById('score').textContent = 0;
-  zombies.forEach(z => scene.remove(z.mesh)); zombies.length = 0;
-  bullets.forEach(b => scene.remove(b.mesh)); bullets.length = 0;
-  releaseHook();
-  running = true;
-  renderer.domElement.requestPointerLock();
-  clock.getDelta();
-}
-
-function endGame() {
-  running = false;
-  document.getElementById('finalScore').textContent = score;
-  document.getElementById('gameOver').style.display = 'flex';
-  document.exitPointerLock();
-}
-
-document.getElementById('startBtn').onclick = startGame;
-document.getElementById('restartBtn').onclick = startGame;
-
-animate();
 </script>
 </body>
 </html>
