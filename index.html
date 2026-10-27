@@ -190,15 +190,15 @@
       <span>Google Chrome</span>
     </div>
     <div class="icon" onclick="openApp('avci')">
-      <span style="font-size:36px;">🏹</span>
+      <span style="font-size:36px;">🤖</span>
       <span>Avcı AI</span>
     </div>
     <div class="icon" onclick="openApp('store')">
-      <span style="font-size:36px;">🛍️</span>
+      <span style="font-size:36px;">🏪</span>
       <span>Mağaza</span>
     </div>
     <div class="icon" onclick="openApp('files')">
-      <span style="font-size:36px;">📁</span>
+      <span style="font-size:36px;">📂</span>
       <span>Dosyalar</span>
     </div>
     <div class="icon" onclick="openApp('cmd')">
@@ -206,23 +206,28 @@
       <span>Terminal</span>
     </div>
     <div class="icon" onclick="openApp('camera')">
-      <span style="font-size:36px;">📷</span>
+      <span style="font-size:36px;">🖼️</span>
       <span>Kamera</span>
     </div>
     <div class="icon" onclick="openApp('defender')">
-      <span style="font-size:36px;">🛡️</span>
+      <span style="font-size:36px;">🪟</span>
       <span>Defender</span>
     </div>
   </div>
+ <div class="icon" onclick="openApp('1010837')">
+      <span style="font-size:36px;">👁️</span>
+      <span>1010837</span>
+    </div>
+</div>
 
   <!-- GÖREV ÇUBUĞU -->
   <div id="taskbar">
     <div class="tb-btn" onclick="toggleStartMenu()">🪟</div>
     <div class="tb-btn" onclick="openApp('chrome')">🌐</div>
-    <div class="tb-btn" onclick="openApp('avci')">🏹</div>
-    <div class="tb-btn" onclick="openApp('files')">📁</div>
+    <div class="tb-btn" onclick="openApp('avci')">🤖</div>
+    <div class="tb-btn" onclick="openApp('files')">📂</div>
     <div class="tb-btn" onclick="openApp('cmd')">💻</div>
-    <div class="tb-btn" onclick="openApp('defender')">🛡️</div>
+    <div class="tb-btn" onclick="openApp('defender')">🪟</div>
     <div style="margin-left:auto; font-size:12px; text-align:right; cursor:pointer;" id="tbClock">12:00</div>
   </div>
 
@@ -635,15 +640,15 @@ function getAvciCode() {
       <span class="label">Chrome</span>
     </div>
     <div class="icon" onclick="openApp('avci')">
-      <span class="emoji">🏹</span>
+      <span class="emoji">🤖</span>
       <span class="label">Avcı AI</span>
     </div>
     <div class="icon" onclick="openApp('store')">
-      <span class="emoji">🛍️</span>
+      <span class="emoji">🏪</span>
       <span class="label">Mağaza</span>
     </div>
     <div class="icon" onclick="openApp('files')">
-      <span class="emoji">📁</span>
+      <span class="emoji">📂</span>
       <span class="label">Dosyalar</span>
     </div>
     <div class="icon" onclick="openApp('cmd')">
@@ -651,11 +656,11 @@ function getAvciCode() {
       <span class="label">Terminal</span>
     </div>
     <div class="icon" onclick="openApp('camera')">
-      <span class="emoji">📷</span>
+      <span class="emoji">🖼️</span>
       <span class="label">Kamera</span>
     </div>
     <div class="icon" onclick="openApp('defender')">
-      <span class="emoji">🛡️</span>
+      <span class="emoji">🪟</span>
       <span class="label">Defender</span>
     </div>
   </div>
@@ -664,10 +669,10 @@ function getAvciCode() {
   <div id="taskbar">
     <div class="tb-btn" onclick="toggleStartMenu()">🪟</div>
     <div class="tb-btn" onclick="openApp('chrome')">🌐</div>
-    <div class="tb-btn" onclick="openApp('avci')">🏹</div>
-    <div class="tb-btn" onclick="openApp('files')">📁</div>
+    <div class="tb-btn" onclick="openApp('avci')">🤖</div>
+    <div class="tb-btn" onclick="openApp('files')">📂</div>
     <div class="tb-btn" onclick="openApp('cmd')">💻</div>
-    <div class="tb-btn" onclick="openApp('defender')">🛡️</div>
+    <div class="tb-btn" onclick="openApp('defender')">🪟</div>
     <div style="margin-left:auto; font-size:11px; text-align:right;" id="tbClock">12:00</div>
   </div>
 
@@ -676,13 +681,15 @@ function getAvciCode() {
     <input class="start-search" placeholder="Ara..." />
     <div class="start-grid">
       <div class="start-item" onclick="openApp('chrome'); toggleStartMenu();"><span style="font-size:26px;">🌐</span><span style="font-size:11px;">Chrome</span></div>
-      <div class="start-item" onclick="openApp('avci'); toggleStartMenu();"><span style="font-size:26px;">🏹</span><span style="font-size:11px;">Avcı AI</span></div>
-      <div class="start-item" onclick="openApp('store'); toggleStartMenu();"><span style="font-size:26px;">🛍️</span><span style="font-size:11px;">Mağaza</span></div>
-      <div class="start-item" onclick="openApp('files'); toggleStartMenu();"><span style="font-size:26px;">📁</span><span style="font-size:11px;">Dosyalar</span></div>
+      <div class="start-item" onclick="openApp('avci'); toggleStartMenu();"><span style="font-size:26px;">🤖</span><span style="font-size:11px;">Avcı AI</span></div>
+      <div class="start-item" onclick="openApp('store'); toggleStartMenu();"><span style="font-size:26px;">🏪</span><span style="font-size:11px;">Mağaza</span></div>
+      <div class="start-item" onclick="openApp('files'); toggleStartMenu();"><span style="font-size:26px;">📂</span><span style="font-size:11px;">Dosyalar</span></div>
       <div class="start-item" onclick="openApp('cmd'); toggleStartMenu();"><span style="font-size:26px;">💻</span><span style="font-size:11px;">Terminal</span></div>
-      <div class="start-item" onclick="openApp('camera'); toggleStartMenu();"><span style="font-size:26px;">📷</span><span style="font-size:11px;">Kamera</span></div>
-      <div class="start-item" onclick="openApp('defender'); toggleStartMenu();"><span style="font-size:26px;">🛡️</span><span style="font-size:11px;">Defender</span></div>
+      <div class="start-item" onclick="openApp('camera'); toggleStartMenu();"><span style="font-size:26px;">🖼️</span><span style="font-size:11px;">Kamera</span></div>
+      <div class="start-item" onclick="openApp('defender'); toggleStartMenu();"><span style="font-size:26px;">🪟</span><span style="font-size:11px;">Defender</span></div>
+     <div class="start-item" onclick="openApp(''); toggleStartMenu();"><span style="font-size:26px;">👁️</span><span style="font-size:11px;">1010837</span></div>
     </div>
+     
     <div class="start-footer">
       <div class="user-profile">👤 Kullanıcı</div>
       <button class="power-btn" onclick="shutdownSystem()">🔴</button>
